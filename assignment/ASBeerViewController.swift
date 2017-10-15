@@ -10,7 +10,7 @@ import UIKit
 import Alamofire
 import SwiftyJSON
 
-class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICollectionViewDelegate, UICollectionViewDelegateFlowLayout{
+class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UIScrollViewDelegate{
     
     
     @IBOutlet weak var myCollectionView: UICollectionView!
@@ -18,14 +18,14 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
 
     var ogBeerArray = [ASBeer]() //Array of dictionary
     var beerArray = [ASBeer]() //Array of dictionary
-    let link = "https://api.brewerydb.com/v2/brewery/avMkil/beers?withBreweries=Y&key=1285c2fdce8414cb69666c0306103775&format=json" // link to fetch the data
-    
+    var pageNum = 0
+    var link = "https://api.brewerydb.com/v2/brewery/avMkil/beers?withBreweries=Y&key=1285c2fdce8414cb69666c0306103775&format=json" // link to fetch the data
+    var isLoading = false
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.loadImages()
+        self.loadImages(pageNum)
         myCollectionView.delegate = self
         myCollectionView.dataSource = self
-        
         searchBar.placeholder = "Search For Beer"
         searchBar.delegate = self
         searchBar.showsCancelButton = true
@@ -97,9 +97,10 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
     
     
     //fuction to fetch the data from link
-    func loadImages() {
+    func loadImages(_ pageNum: Int) {
+        let newLink = link + "&p=" + String(pageNum)
         
-        Alamofire.request(link)
+        Alamofire.request(newLink)
             .validate()
             .responseJSON { (response) in
                 
@@ -117,7 +118,7 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
                     print("Error with dictionary data: \(String(describing: response.result.error))")
                     return
                 }
-                
+                self.isLoading  = false
                 for data in dictData {
                     
                     guard let id: String = data["id"] as? String else {
@@ -145,6 +146,19 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
         }
         
     }
+    
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if isLoading || searchBar.text != "" {
+            return
+        }
+        if (scrollView.contentOffset.y >= (scrollView.contentSize.height - scrollView.frame.size.height)) {
+            isLoading = true
+            pageNum = pageNum + 1
+            loadImages(pageNum)
+        }
+    }
+
 }
 
 
