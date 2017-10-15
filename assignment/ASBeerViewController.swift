@@ -14,7 +14,9 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
     
     
     @IBOutlet weak var myCollectionView: UICollectionView!
-    
+    lazy   var searchBar:UISearchBar = UISearchBar(frame: CGRect(x: 0, y: 0, width: 350, height: 20))
+
+    var ogBeerArray = [ASBeer]() //Array of dictionary
     var beerArray = [ASBeer]() //Array of dictionary
     let link = "https://api.brewerydb.com/v2/brewery/avMkil/beers?withBreweries=Y&key=1285c2fdce8414cb69666c0306103775&format=json" // link to fetch the data
     
@@ -23,6 +25,13 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
         self.loadImages()
         myCollectionView.delegate = self
         myCollectionView.dataSource = self
+        
+        searchBar.placeholder = "Search For Beer"
+        searchBar.delegate = self
+        searchBar.showsCancelButton = true
+        let leftNavBarButton = UIBarButtonItem(customView:searchBar)
+        self.navigationItem.leftBarButtonItem = leftNavBarButton
+
     }
     
     
@@ -38,6 +47,10 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "beerData", for: indexPath) as! BeerCell
+        cell.clipsToBounds = true
+        cell.layer.cornerRadius = 4.0
+        cell.layer.borderColor = UIColor.black.cgColor
+        cell.layer.borderWidth = 1.0
         
         let beer: ASBeer = beerArray[indexPath.item]
         cell.beerName!.text = beer.name
@@ -73,7 +86,7 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let screenSize = UIScreen.main.bounds
         let screenWidth = screenSize.width
-        return CGSize(width: screenWidth/2 - 20 , height: 150)
+        return CGSize(width: screenWidth/2 - 20 , height: screenWidth/2 + 25)
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
@@ -111,7 +124,7 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
                     }
                     let beer = ASBeer(id: id)
                     if let imageDictUrl = data["labels"] {
-                        if let image = imageDictUrl["medium"] as? String {
+                        if let image = imageDictUrl["large"] as? String {
                             beer.imageUrl = image
                         }
                     }
@@ -121,8 +134,9 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
                     if let date = data["createDate"] as? String{
                         beer.date_created = date
                     }
-                    self.beerArray.append(beer)
+                    self.ogBeerArray.append(beer)
                 }
+                self.beerArray.append(contentsOf: self.ogBeerArray)
                 DispatchQueue.main.async() {
                     self.myCollectionView.reloadData()
                 }
@@ -132,6 +146,25 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
 }
 
 
+extension ASBeerViewController: UISearchBarDelegate {
+    
+    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
 
+        return true
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let searchingText = searchBar.text
+        beerArray = ogBeerArray.filter( { return $0.name == searchingText } )
+        self.myCollectionView.reloadData()
+        self.searchBar.resignFirstResponder()
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        beerArray = ogBeerArray
+        self.myCollectionView.reloadData()
+        self.searchBar.resignFirstResponder()
+    }
+}
 
 

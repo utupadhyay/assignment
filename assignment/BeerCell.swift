@@ -12,8 +12,6 @@ class BeerCell: UICollectionViewCell {
     @IBOutlet weak var beerImage: UIImageView!
     @IBOutlet weak var beerName: UILabel!
     
-   
-    
     override func prepareForReuse() {
         super.prepareForReuse()
         self.beerImage.image = nil
