@@ -169,9 +169,14 @@ extension ASBeerViewController: UISearchBarDelegate {
         return true
     }
     
+    func isSubstring(s: String) -> Bool {
+        
+        return s.range(of:searchBar.text!) != nil
+            //&& (s.index(of: Character(s1!))  == s.index(of: s.characters.first!))
+    }
+    
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        let searchingText = searchBar.text
-        beerArray = ogBeerArray.filter( { return $0.name == searchingText } )
+        beerArray = ogBeerArray.filter( { isSubstring(s: $0.name!) } )
         self.myCollectionView.reloadData()
         self.searchBar.resignFirstResponder()
     }
