@@ -56,6 +56,8 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
         cell.beerName!.text = beer.name
         if (beer.imageUrl == nil)
         {
+            cell.beerImage.image = UIImage(named: "beerImage")
+
             print("error")
         }else{
             let url = URL(string: beer.imageUrl!)
