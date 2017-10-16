@@ -14,18 +14,22 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
     
     
     @IBOutlet weak var myCollectionView: UICollectionView!
-    lazy   var searchBar:UISearchBar = UISearchBar(frame: CGRect(x: 0, y: 0, width: 350, height: 20))
+    lazy   var searchBar:UISearchBar = UISearchBar(frame: CGRect(x: 0, y: 0, width: 350, height: 10))// searchbar
 
-    var ogBeerArray = [ASBeer]() //Array of dictionary
-    var beerArray = [ASBeer]() //Array of dictionary
+    var ogBeerArray = [ASBeer]() //Array of original beer  dictionary
+    var beerArray = [ASBeer]() //Array of filtered beer  dictionary
     var pageNum = 0
     var link = "https://api.brewerydb.com/v2/brewery/avMkil/beers?withBreweries=Y&key=1285c2fdce8414cb69666c0306103775&format=json" // link to fetch the data
     var isLoading = false
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         self.loadImages(pageNum)
+        
         myCollectionView.delegate = self
         myCollectionView.dataSource = self
+        
+        // for searchbar
         searchBar.placeholder = "Search For Beer"
         searchBar.delegate = self
         searchBar.showsCancelButton = true
@@ -33,7 +37,7 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
         self.navigationItem.leftBarButtonItem = leftNavBarButton
 
     }
-    
+    // collection view methods..
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
@@ -147,7 +151,7 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
         
     }
     
-    
+   //pagination
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if isLoading || searchBar.text != "" {
             return
@@ -160,8 +164,7 @@ class ASBeerViewController: UIViewController ,UICollectionViewDataSource , UICol
     }
 
 }
-
-
+//function related to search bar
 extension ASBeerViewController: UISearchBarDelegate {
     
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
